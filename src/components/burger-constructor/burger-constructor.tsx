@@ -1,36 +1,57 @@
 import { FC, useMemo } from 'react';
-import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
+import { useDispatch, useSelector } from '../../services/store';
+import { useNavigate } from 'react-router-dom';
+import {
+  selectConstructorBun,
+  selectConstructorIngredients,
+  clearConstructor
+} from '../../services/slices/constructor/burger-constructor-slice';
+import { selectIsAuthenticated } from '../../services/slices/user/user-slice';
+import {
+  createOrder,
+  clearOrder,
+  selectCurrentOrder,
+  selectOrderDetailsLoading
+} from '../../services/slices/orders/order-details-slice';
 
 export const BurgerConstructor: FC = () => {
-  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const bun = useSelector(selectConstructorBun);
+  const ingredients = useSelector(selectConstructorIngredients);
+  const orderModalData = useSelector(selectCurrentOrder);
+  const orderRequest = useSelector(selectOrderDetailsLoading);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
   const constructorItems = {
-    bun: {
-      price: 0
-    },
-    ingredients: []
+    bun,
+    ingredients
   };
-
-  const orderRequest = false;
-
-  const orderModalData = null;
-
-  const onOrderClick = () => {
-    if (!constructorItems.bun || orderRequest) return;
-  };
-  const closeOrderModal = () => {};
 
   const price = useMemo(
     () =>
-      (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
-      constructorItems.ingredients.reduce(
-        (s: number, v: TConstructorIngredient) => s + v.price,
-        0
-      ),
-    [constructorItems]
+      (bun ? bun.price * 2 : 0) +
+      ingredients.reduce((sum: number, item) => sum + item.price, 0),
+    [bun, ingredients]
   );
 
-  return null;
+  const isOrderDisabled = !bun || ingredients.length === 0;
+
+  const onOrderClick = () => {
+    if (!isAuthenticated) return navigate('/login');
+    if (isOrderDisabled) return;
+
+    const ids = [bun._id, ...ingredients.map((i) => i._id), bun._id];
+    dispatch(createOrder(ids));
+  };
+
+  const closeOrderModal = () => {
+    dispatch(clearOrder());
+    dispatch(clearConstructor());
+    navigate('/', { replace: true });
+  };
 
   return (
     <BurgerConstructorUI
@@ -40,6 +61,7 @@ export const BurgerConstructor: FC = () => {
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
       closeOrderModal={closeOrderModal}
+      isOrderDisabled={isOrderDisabled}
     />
   );
 };
