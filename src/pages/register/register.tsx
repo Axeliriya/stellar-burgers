@@ -1,4 +1,4 @@
-import { FC, SyntheticEvent, useState } from 'react';
+import { FC, SyntheticEvent } from 'react';
 import { RegisterUI } from '@ui-pages';
 import { useDispatch, useSelector } from '../../services/store';
 import { useNavigate } from 'react-router-dom';
@@ -7,11 +7,16 @@ import {
   selectUserError,
   selectUserLoading
 } from '../../services/slices/user/user-slice';
+import { useForm } from '../../hooks/useForm';
 
 export const Register: FC = () => {
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, handleChange } = useForm({
+    userName: '',
+    email: '',
+    password: ''
+  });
+
+  const { userName, email, password } = values;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,9 +43,7 @@ export const Register: FC = () => {
       email={email}
       userName={userName}
       password={password}
-      setEmail={setEmail}
-      setPassword={setPassword}
-      setUserName={setUserName}
+      handleChange={handleChange}
       handleSubmit={handleSubmit}
     />
   );

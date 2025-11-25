@@ -1,4 +1,4 @@
-import { FC, SyntheticEvent, useState } from 'react';
+import { FC, SyntheticEvent } from 'react';
 import { LoginUI } from '@ui-pages';
 import { useDispatch, useSelector } from '../../services/store';
 import {
@@ -6,10 +6,15 @@ import {
   selectUserLoading
 } from '../../services/slices/user/user-slice';
 import { loginUser } from '../../services/slices/user/user-actions';
+import { useForm } from '../../hooks/useForm';
 
 export const Login: FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, handleChange } = useForm({
+    email: '',
+    password: ''
+  });
+
+  const { email, password } = values;
 
   const dispatch = useDispatch();
   const isLoading = useSelector(selectUserLoading);
@@ -20,16 +25,15 @@ export const Login: FC = () => {
 
     if (!email || !password || isLoading) return;
 
-    dispatch(loginUser({ email, password }));
+    dispatch(loginUser(values));
   };
 
   return (
     <LoginUI
       errorText={error || ''}
       email={email}
-      setEmail={setEmail}
       password={password}
-      setPassword={setPassword}
+      handleChange={handleChange}
       handleSubmit={handleSubmit}
     />
   );

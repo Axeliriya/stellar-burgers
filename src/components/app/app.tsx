@@ -33,7 +33,7 @@ const App = () => {
 
   useEffect(() => {
     dispatch(initializeApp());
-  }, [dispatch]);
+  }, []);
 
   const closeModal = () => {
     const currentPath = location.pathname;
@@ -96,12 +96,14 @@ const App = () => {
               <Route
                 path='/profile/orders/:number'
                 element={
-                  <Modal
-                    title={MODAL_TITLES[ModalType.ProfileOrder]}
-                    onClose={closeModal}
-                  >
-                    <OrderInfo />
-                  </Modal>
+                  <ProtectedRoute>
+                    <Modal
+                      title={MODAL_TITLES[ModalType.ProfileOrder]}
+                      onClose={closeModal}
+                    >
+                      <OrderInfo />
+                    </Modal>
+                  </ProtectedRoute>
                 }
               />
               <Route

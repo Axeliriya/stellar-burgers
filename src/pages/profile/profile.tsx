@@ -1,25 +1,26 @@
 import { ProfileUI } from '@ui-pages';
-import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { FC, SyntheticEvent, useEffect } from 'react';
 import {
   selectUser,
   selectUserLoading
 } from '../../services/slices/user/user-slice';
 import { useDispatch, useSelector } from '../../services/store';
 import { updateUser } from '../../services/slices/user/user-actions';
+import { useForm } from '../../hooks/useForm';
 
 export const Profile: FC = () => {
   const user = useSelector(selectUser);
   const isLoading = useSelector(selectUserLoading);
   const dispatch = useDispatch();
 
-  const [formValue, setFormValue] = useState({
+  const { values, handleChange, setValues } = useForm({
     name: '',
     email: '',
     password: ''
   });
 
   useEffect(() => {
-    setFormValue((prevState) => ({
+    setValues((prevState) => ({
       ...prevState,
       name: user?.name || '',
       email: user?.email || ''
@@ -27,41 +28,34 @@ export const Profile: FC = () => {
   }, [user]);
 
   const isFormChanged =
-    formValue.name !== user?.name ||
-    formValue.email !== user?.email ||
-    !!formValue.password;
+    values.name !== user?.name ||
+    values.email !== user?.email ||
+    !!values.password;
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
 
     if (isLoading || !isFormChanged) return;
 
-    await dispatch(updateUser(formValue));
+    await dispatch(updateUser(values));
   };
 
   const handleCancel = async (e: SyntheticEvent) => {
     e.preventDefault();
-    setFormValue({
+    setValues({
       name: user?.name || '',
       email: user?.email || '',
       password: ''
     });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value
-    }));
-  };
-
   return (
     <ProfileUI
-      formValue={formValue}
+      formValue={values}
       isFormChanged={isFormChanged}
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
-      handleInputChange={handleInputChange}
+      handleInputChange={handleChange}
     />
   );
 };

@@ -9,9 +9,13 @@ import { Preloader } from '@ui';
 
 interface ProtectedRouteProps {
   onlyUnAuth?: boolean;
+  children?: React.ReactNode;
 }
 
-export const ProtectedRoute = ({ onlyUnAuth = false }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({
+  onlyUnAuth = false,
+  children
+}: ProtectedRouteProps) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const isAuthChecked = useSelector(selectIsAuthChecked);
   const isLoading = useSelector(selectUserLoading);
@@ -30,5 +34,5 @@ export const ProtectedRoute = ({ onlyUnAuth = false }: ProtectedRouteProps) => {
     return <Navigate to='/login' state={{ from: location }} replace />;
   }
 
-  return <Outlet />;
+  return children ? children : <Outlet />;
 };
